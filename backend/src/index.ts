@@ -1,16 +1,21 @@
 import express from "express";
-
 import { prisma } from "../src/lib/prisma";
-import { start } from "node:repl";
+import authRoutes from "./auth/auth.routes";
 
 const app = express();
+const PORT = 3000;
 
+app.use(express.json()); //Parse JSON bodies
+
+app.use("/api/auth", authRoutes); // Use auth routes
+
+//Health check for Database connection and server
 async function startServer() {
   try {
-    // Connect to the database
-    await prisma.$connect();
+    await prisma.$connect(); // Connect to the database
     console.log("Connected to the database successfully!");
-    app.listen(3000, () => {
+
+    app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
   } catch (error) {
@@ -18,12 +23,6 @@ async function startServer() {
   }
 }
 startServer();
-
-app.get("/", (req, res) => {
-  res.send("Customer Success Platform API runs successfully!");
-});
-
-const PORT = 3000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
