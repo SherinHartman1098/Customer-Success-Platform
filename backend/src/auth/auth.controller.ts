@@ -10,13 +10,13 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response)=>{
-    try{
-        const result= await authService.login(req.body);
-        return res.status(200).json(result);
-    }catch(error:any){
-        return res.status(400).json({
-            message: error.message
-        });
-    }
+export const login = async (req: Request, res: Response) => {
+  try {
+    const result = await authService.login(req.body);
+    return res.status(200).json(result);
+  } catch (error: any) {
+    return res.status(400).json({
+      message: error.message,
+    });
+  }
 };
