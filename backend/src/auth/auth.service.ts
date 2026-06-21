@@ -9,7 +9,7 @@ interface RegisterData {
   email: string;
   password: string;
   //role?: string; // Optional role field
-  role:string;
+  role: string;
 }
 export const register = async (data: RegisterData) => {
   const { username, email, password, role } = data;
@@ -33,7 +33,7 @@ export const register = async (data: RegisterData) => {
 
   // 4. save user
 
-  const user = await prisma.user.create({
+  await prisma.user.create({
     data: {
       name: username,
       email,
@@ -76,6 +76,7 @@ export const login = async (data: LoginData) => {
     throw new Error("Invalid email or password");
   }
   const token = generateToken(user.id, user.email);
+
   return {
     message: "Login successful",
     token,

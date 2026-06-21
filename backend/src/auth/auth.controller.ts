@@ -13,7 +13,17 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const result = await authService.login(req.body);
-    return res.status(200).json(result);
+    res.cookie("token", result.token, {
+      httpOnly: true,
+      secure: false, // Set to true in production with HTTPS
+      sameSite: "lax",
+      maxAge: 60 * 60 * 1000, // 1 hour
+    });
+    //return res.status(200).json(result);
+    return res.status(200).json({
+      message: result.message, // for debugging only
+      token: result.token,
+    });
   } catch (error: any) {
     return res.status(400).json({
       message: error.message,
