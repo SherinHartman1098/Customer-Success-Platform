@@ -13,7 +13,13 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import { useNavbar } from "../NavBar/useNavBar";
-const pages = ["Dashboard", "Customer List", "Tickets"];
+import { useNavigate } from "react-router-dom";
+
+const pages = [
+  { label: "Dashboard", path: "/dashboard" },
+  { label: "Customer List", path: "/CustomerList" },
+  { label: "Tickets", path: "/tickets" },
+];
 const settings = [
   {
     label: "Profile",
@@ -36,6 +42,8 @@ const settings = [
 ];
 
 function NavBar() {
+  const navigate = useNavigate();
+
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null,
   );
@@ -58,7 +66,13 @@ function NavBar() {
     setAnchorElUser(null);
   };
 
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    handleCloseNavMenu();
+  };
+
   const { handleMenuAction } = useNavbar();
+
   return (
     <AppBar position="fixed" sx={{ backgroundColor: "#3c5670" }}>
       <Container maxWidth="xl">
@@ -110,8 +124,13 @@ function NavBar() {
               sx={{ display: { xs: "block", md: "none" } }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography sx={{ textAlign: "center" }}>{page}</Typography>
+                <MenuItem
+                  key={page.path}
+                  onClick={() => handleNavigate(page.path)}
+                >
+                  <Typography sx={{ textAlign: "center" }}>
+                    {page.label}
+                  </Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -138,11 +157,11 @@ function NavBar() {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
-                key={page}
-                onClick={handleCloseNavMenu}
+                key={page.path}
+                onClick={() => handleNavigate(page.path)}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
-                {page}
+                {page.label}
               </Button>
             ))}
           </Box>
