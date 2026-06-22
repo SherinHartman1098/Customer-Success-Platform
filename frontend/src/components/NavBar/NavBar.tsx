@@ -12,9 +12,28 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
+import { useNavbar } from "../NavBar/useNavBar";
+const pages = ["Dashboard", "Customer List", "Tickets"];
+const settings = [
+  {
+    label: "Profile",
+    action: "profile",
+  },
 
-const pages = ["Dashboard", "Tickets", "About"];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+  {
+    label: "Account",
+    action: "account",
+  },
+
+  {
+    label: "Dashboard",
+    action: "dashboard",
+  },
+  {
+    label: "Logout",
+    action: "logout",
+  },
+];
 
 function NavBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
@@ -39,6 +58,7 @@ function NavBar() {
     setAnchorElUser(null);
   };
 
+  const { handleMenuAction } = useNavbar();
   return (
     <AppBar position="fixed" sx={{ backgroundColor: "#3c5670" }}>
       <Container maxWidth="xl">
@@ -149,9 +169,15 @@ function NavBar() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting}>
+                <MenuItem
+                  key={setting.label}
+                  onClick={() => {
+                    handleCloseUserMenu();
+                    handleMenuAction(setting.label);
+                  }}
+                >
                   <Typography sx={{ textAlign: "center" }}>
-                    {setting}
+                    {setting.label}
                   </Typography>
                 </MenuItem>
               ))}

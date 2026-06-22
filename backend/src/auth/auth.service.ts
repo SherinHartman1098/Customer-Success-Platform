@@ -1,7 +1,9 @@
 import { hashPassword, comparePassword } from "./password.service.js";
 // import { PrismaClient } from "@prisma/client";
 import { generateToken } from "./auth.utils.js";
+import * as jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma.js";
+import {UserRole} from "@prisma/client";
 
 // Register Service
 interface RegisterData {
@@ -13,7 +15,10 @@ interface RegisterData {
 }
 export const register = async (data: RegisterData) => {
   const { username, email, password, role } = data;
-  debugger;
+  const normalizedRole = role.toUpperCase();
+  if (!Object.values(UserRole).includes(normalizedRole as UserRole)) {
+    throw new Error("Invalid role");
+  }
   // 1. basic validation
   if (!username || !email || !password) {
     throw new Error("Username, email, and password are required");
@@ -38,7 +43,7 @@ export const register = async (data: RegisterData) => {
       name: username,
       email,
       password: hashedPassword,
-      role,
+      role: normalizedRole as UserRole,
     },
   });
   // 5. return response
@@ -81,4 +86,23 @@ export const login = async (data: LoginData) => {
     message: "Login successful",
     token,
   };
+};
+
+//Get current user details
+export const getCurrentUser = async (userId: number) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  } else {
+    return user;
+  }
 };

@@ -30,3 +30,32 @@ export const login = async (req: Request, res: Response) => {
     });
   }
 };
+
+//controller function for logout
+export const logout = async (req: Request, res: Response) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    });
+    return res.status(200).json({ message: "Logged out successfully" });
+  } catch (error: any) {
+    return res.status(400).json({
+      message: error.message,
+    });
+  }
+};
+
+//controller function for validating token
+export const me = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId;
+    const result = await authService.getCurrentUser(userId);
+    return res.status(200).json(result);
+  } catch (error: any) {
+    return res.status(400).json({
+      message: error.message,
+    });
+  }
+};

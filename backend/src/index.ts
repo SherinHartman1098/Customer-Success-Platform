@@ -3,6 +3,9 @@ import { prisma } from "../src/lib/prisma";
 import authRoutes from "./auth/auth.routes";
 // @ts-ignore: Missing type declarations for 'cors'
 import cors from "cors";
+import customerRoutes from "./customer/customer.routes";
+// @ts-ignore: Missing type declarations for 'cookie-parser'
+import cookieParser from "cookie-parser";
 
 const app = express();
 const PORT = 3000;
@@ -10,14 +13,16 @@ const PORT = 3000;
 //CORS configuration to allow requests from the frontend
 app.use(
   cors({
-    origin: "http://localhost:5175",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   }),
 );
 
 app.use(express.json()); //Parse JSON bodies
+app.use(cookieParser());
 
 app.use("/api/auth", authRoutes); // Use auth routes
+app.use("/api/customer", customerRoutes); // Use customer routes
 
 //Health check for Database connection and server
 async function startServer() {
@@ -33,4 +38,3 @@ async function startServer() {
   }
 }
 startServer();
-
