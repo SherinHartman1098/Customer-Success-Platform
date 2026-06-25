@@ -28,6 +28,8 @@ export default function DataGrid({
       rows={rows}
       columns={columns}
       loading={loading}
+      rowHeight={40}
+      columnHeaderHeight={50}
       disableRowSelectionOnClick={false}
       //Selecting and deselecting rows
       onRowSelectionModelChange={(selection) => {
@@ -44,7 +46,7 @@ export default function DataGrid({
       initialState={{
         pagination: {
           paginationModel: {
-            pageSize: 5,
+            pageSize: 10,
           },
         },
       }}

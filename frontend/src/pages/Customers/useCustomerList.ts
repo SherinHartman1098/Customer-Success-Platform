@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/axios";
 import type { Customer } from "../../types/customer.types";
+import {useNotification} from "../../context/NotificationContext";
+
 
 export const useCustomerList = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -31,14 +33,18 @@ export const useCustomerList = () => {
     );
   });
 
+  const { notify } = useNotification();
+
   const fetchCustomers = async () => {
     try {
       setLoading(true);
       const response = await api.get("/customer/getAllCustomers");
       console.log("Fetched customers:", response.data);
+     // notify(response.data.message, "success");
       setCustomers(response.data);
     } catch (err: any) {
-      setError(err?.response?.data?.message || "Failed to fetch customers");
+      // setError(err?.response?.data?.message || "Failed to fetch customers");
+      notify(err?.response?.data?.message || "Failed to fetch customers", "error");
     } finally {
       setLoading(false);
     }
@@ -83,6 +89,7 @@ export const useCustomerList = () => {
       setLoading(true);
       if (dialogMode === "add") {
         const response = await api.post("/customer/createCustomer", data);
+        notify(response.data.message, "success");
         console.log("Customer created:", response.data);
         setCustomers([...customers, response.data.customer]);
       } else if (dialogMode === "edit" && selectedCustomer) {
@@ -90,14 +97,15 @@ export const useCustomerList = () => {
           (selectedCustomer as any).id ?? (selectedCustomer as any).customerId;
         console.log("Updating customer with ID:", customerId, "Data:", data);
         if (!customerId) {
-          setError("Missing customer identifier");
+          // setError("Missing customer identifier");
+          notify("Missing customer identifier", "error");
           return;
         }
-
         const response = await api.put(
           `/customer/updateCustomerProfile/${customerId}`,
           data,
         );
+        notify(response.data.message, "success");
         console.log("Customer updated:", response.data);
         setCustomers(
           customers.map((customer) =>
@@ -110,7 +118,8 @@ export const useCustomerList = () => {
       }
       handleCloseFormDialog();
     } catch (err: any) {
-      setError(err?.response?.data?.message || "Failed to create customer");
+     // setError(err?.response?.data?.message || "Failed to create customer");
+      notify(err?.response?.data?.message || "Failed to create customer", "error");
     } finally {
       setLoading(false);
     }

@@ -3,6 +3,7 @@ import BasicButtons from "../../components/Button/Button";
 import TextInput from "../../components/TextInput/TextInput";
 import registerImg from "../../assets/registerBckgrnd2.png";
 import { useLogin } from "./useLogin";
+import SnackBarNotification from "../../components/Notification/SnackBarNotification";
 export function LoginPage() {
   const { form, loading, error, handleChange, handleSubmit } = useLogin();
   return (
@@ -73,7 +74,13 @@ export function LoginPage() {
               value={form.password}
               onChange={handleChange}
             />
-            {error && <p style={{ color: "red" }}>{error}</p>}
+            {/* {error && (
+              <SnackBarNotification
+                variant="filled"
+                severity="error"
+                message={error}
+              />
+            )} */}
             <Box sx={{ display: "flex", justifyContent: "center" }}>
               <BasicButtons id="submitBtn-2" type="submit" variant="contained">
                 Login

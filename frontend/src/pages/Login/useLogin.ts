@@ -2,6 +2,7 @@ import { useState } from "react";
 import { api } from "../../lib/axios";
 import { useNavigate } from "react-router-dom";
 import type { LoginRequest } from "../../types/auth.types";
+import { useNotification } from "../../context/NotificationContext";
 
 export const useLogin = () => {
   const [form, setForm] = useState<LoginRequest>({
@@ -13,6 +14,7 @@ export const useLogin = () => {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const { notify } = useNotification();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({
@@ -28,12 +30,15 @@ export const useLogin = () => {
       setError("");
 
       const response = await api.post("/auth/login", form);
+      notify(response.data.message, "success");
+
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
         navigate("/dashboard");
       }
     } catch (err: any) {
-      setError(err?.response?.data?.message || "Login failed");
+      // setError(err?.response?.data?.message || "Login failed");
+      notify(err?.response?.data?.message || "Login failed", "error");
     } finally {
       setLoading(false);
     }

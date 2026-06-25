@@ -2,6 +2,7 @@ import { useState } from "react";
 import { registerUser } from "../../services/auth.service";
 import { useNavigate } from "react-router-dom";
 import type { RegisterRequest } from "../../types/auth.types";
+import { useNotification } from "../../context/NotificationContext";
 
 export const useRegister = () => {
   const [form, setForm] = useState<RegisterRequest>({
@@ -15,6 +16,7 @@ export const useRegister = () => {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const { notify } = useNotification();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({
@@ -36,9 +38,11 @@ export const useRegister = () => {
         password: form.password,
         role: form.role,
       });
+      notify("Registration successful!", "success");
       navigate("/login");
     } catch (err: any) {
-      setError(err?.response?.data?.message || "Registration failed");
+      // setError(err?.response?.data?.message || "Registration failed");
+      notify(err?.response?.data?.message || "Registration failed", "error");
     } finally {
       setLoading(false);
     }

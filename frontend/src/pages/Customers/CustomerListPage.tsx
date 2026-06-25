@@ -102,18 +102,19 @@ export function CustomerListPage() {
             >
               Edit Customer
             </Button>
-            <IconButton
-              aria-label="refresh"
-              //color="secondary"
-              onClick={fetchCustomers}
-            >
+            <IconButton aria-label="refresh" onClick={fetchCustomers}>
               <RefreshIcon />
             </IconButton>
           </Box>
           <Box sx={{ width: 350 }}>
-            <SearchBar value={searchQuery} onChange={setSearchQuery} />
+            <SearchBar
+              placeholder="Type Company name or Contact name..."
+              value={searchQuery}
+              onChange={setSearchQuery}
+            />
           </Box>
         </Box>
+     
         <DataGrid
           columns={columns}
           rows={filteredCustomers}
