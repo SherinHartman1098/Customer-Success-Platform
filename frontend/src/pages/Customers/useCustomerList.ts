@@ -1,31 +1,140 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/axios";
+import type { Customer } from "../../types/customer.types";
 
 export const useCustomerList = () => {
-  const [customers, setCustomers] = useState([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [openFormDialog, setOpenFormDialog] = useState(false);
+  const [formData, setFormData] = useState<Customer>({
+    companyName: "",
+    contactName: "",
+    email: "",
+    phone: "",
+    industry: "",
+    status: "ACTIVE", // Default status
+  });
 
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  );
+  const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredCustomers = customers.filter((customer) => {
+    const search = searchQuery.toLowerCase();
+    return (
+      customer.companyName?.toLowerCase().includes(search) ||
+      customer.contactName?.toLowerCase().includes(search)
+    );
+  });
+
+  const fetchCustomers = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("/customer/getAllCustomers");
+      console.log("Fetched customers:", response.data);
+      setCustomers(response.data);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to fetch customers");
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get("/customer/getAllCustomers");
-        console.log("Fetched customers:", response.data);
-        setCustomers(response.data);
-      } catch (err: any) {
-        setError(err?.response?.data?.message || "Failed to fetch customers");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCustomers();
   }, []);
 
+  const handleOpenFormDialog = () => {
+    setDialogMode("add");
+    setFormData({
+      companyName: "",
+      contactName: "",
+      email: "",
+      phone: "",
+      industry: "",
+      status: "ACTIVE", // Default status
+    });
+    setOpenFormDialog(true);
+  };
+
+  const handleOpenEditDialog = () => {
+    if (!selectedCustomer) return;
+    console.log("Selected customer for editing:", selectedCustomer);
+    setDialogMode("edit");
+    setFormData(selectedCustomer); //prepopulate the form
+    setOpenFormDialog(true);
+  };
+
+  const handleCloseFormDialog = () => {
+    setOpenFormDialog(false);
+  };
+  const handleFormDialogChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleFormSubmit = async (data: Customer) => {
+    try {
+      setLoading(true);
+      if (dialogMode === "add") {
+        const response = await api.post("/customer/createCustomer", data);
+        console.log("Customer created:", response.data);
+        setCustomers([...customers, response.data.customer]);
+      } else if (dialogMode === "edit" && selectedCustomer) {
+        const customerId =
+          (selectedCustomer as any).id ?? (selectedCustomer as any).customerId;
+        console.log("Updating customer with ID:", customerId, "Data:", data);
+        if (!customerId) {
+          setError("Missing customer identifier");
+          return;
+        }
+
+        const response = await api.put(
+          `/customer/updateCustomerProfile/${customerId}`,
+          data,
+        );
+        console.log("Customer updated:", response.data);
+        setCustomers(
+          customers.map((customer) =>
+            ((customer as any).id ?? (customer as any).customerId) ===
+            customerId
+              ? response.data.customer
+              : customer,
+          ),
+        );
+      }
+      handleCloseFormDialog();
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to create customer");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
+    fetchCustomers,
     customers,
     loading,
     error,
+    openFormDialog,
+    setOpenFormDialog,
+    handleOpenFormDialog,
+    handleCloseFormDialog,
+    formData,
+    setFormData,
+    handleFormDialogChange,
+    handleFormSubmit,
+    selectedCustomer,
+    setSelectedCustomer,
+    handleOpenEditDialog,
+    dialogMode,
+    searchQuery,
+    setSearchQuery,
+    filteredCustomers,
   };
 };
