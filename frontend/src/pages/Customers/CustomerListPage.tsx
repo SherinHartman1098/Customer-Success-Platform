@@ -114,7 +114,11 @@ export function CustomerListPage() {
             />
           </Box>
         </Box>
-     
+        <h1>Customers</h1>
+        <p>
+          Add, Edit, search, and manage your customers (end users) all in one
+          place.
+        </p>
         <DataGrid
           columns={columns}
           rows={filteredCustomers}

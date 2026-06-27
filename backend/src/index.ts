@@ -6,6 +6,7 @@ import cors from "cors";
 import customerRoutes from "./customer/customer.routes";
 // @ts-ignore: Missing type declarations for 'cookie-parser'
 import cookieParser from "cookie-parser";
+import ticketsRoutes from "./tickets/tickets.routes";
 
 const app = express();
 const PORT = 3000;
@@ -23,6 +24,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes); // Use auth routes
 app.use("/api/customer", customerRoutes); // Use customer routes
+app.use("/api/tickets", ticketsRoutes); // Use tickets routes
 
 //Health check for Database connection and server
 async function startServer() {
