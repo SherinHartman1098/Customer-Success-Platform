@@ -1,6 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, TicketPriority, TicketStatus } from "@prisma/client";
 import { Ticket } from "@prisma/client";
-import { TicketPriority } from "@prisma/client";
+
 const prisma = new PrismaClient();
 
 interface TicketData {
@@ -8,16 +8,16 @@ interface TicketData {
   title: string;
   description: string;
   priority: TicketPriority;
-  status?: string;
+  status: TicketStatus;
 }
 //Create a new ticket
 export const createTicket = async (data: TicketData) => {
-  const { customerId, title, description, priority } = data;
+  const { customerId, title, description, priority, status } = data;
 
   // Basic validation
-  if (!customerId || !title || !description || !priority) {
+  if (!customerId || !title || !description || !priority || !status) {
     throw new Error(
-      "Customer ID, title, description, and priority are required",
+      "Customer ID, title, description, priority, and status are required",
     );
   }
   //Verify customer exists
@@ -66,7 +66,7 @@ export const createTicket = async (data: TicketData) => {
       title,
       description,
       priority: data.priority.toUpperCase() as TicketPriority,
-      status: "OPEN",
+      status: data.status.toUpperCase() as TicketStatus,
       assignedToUser: leastLoadedAgent.id,
     },
   });
@@ -104,4 +104,64 @@ export const getAllTickets = async () => {
   });
 
   return tickets;
+};
+
+//Get ticket by ID
+export const getTicketById = async (ticketId: number) => {
+  const ticket = await prisma.ticket.findUnique({
+    where: { id: ticketId },
+    include: {
+      customer: {
+        select: {
+          id: true,
+          companyName: true,
+          contactName: true,
+          email: true,
+        },
+      },
+      assignedUser: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      },
+    },
+  });
+
+  if (!ticket) {
+    throw new Error("Ticket not found");
+  }
+
+  return ticket;
+};
+
+//Update ticket status
+export const updateTicketStatus = async (
+  ticketId: number,
+  status: TicketStatus,
+) => {
+    const ticket = await prisma.ticket.findUnique({
+    where: { id: ticketId },
+  });
+
+  if (!ticket) {
+    throw new Error("Ticket not found");
+  }
+  // Validate status
+  if (
+    !Object.values(TicketStatus).includes(status.toUpperCase() as TicketStatus)
+  ) {
+    throw new Error("Invalid status value");
+  }
+  const updatedTicket = await prisma.ticket.update({
+    where: { id: ticketId },
+    data: { status: status.toUpperCase() as TicketStatus },
+  });
+
+  return {
+    message: "Ticket status updated successfully",
+    ticket: updatedTicket,
+  };
 };
